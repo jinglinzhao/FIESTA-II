@@ -26,10 +26,12 @@ def FT(signal, spacing):
 # Wrap the phase
 # ------------------------------------------
 def wrap(array):
-# An individual phase ranges within (-np.pi, np.pi)
-# The difference of two phases ranges within (-2*np.pi, 2*np.pi)
-# Adding a phase of multiples of 2*np.pi is effectively the same phase
-# This function wraps the phase difference such that it lies within (-np.pi, np.pi)
+'''	
+	An individual phase ranges within (-np.pi, np.pi)
+	The difference of two phases ranges within (-2*np.pi, 2*np.pi)
+	Adding a phase of multiples of 2*np.pi is effectively the same phase
+	This function wraps the phase difference such that it lies within (-np.pi, np.pi)
+'''	
 	for i in np.arange(len(array)):
 		array[i] = array[i] - int(array[i]/np.pi) * 2 * np.pi
 	return array
