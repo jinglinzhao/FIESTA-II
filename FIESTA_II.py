@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.optimize import curve_fit
 import copy
+import pandas as pd
 
 # ------------------------------------------
 #
@@ -53,7 +54,7 @@ def wrap(ϕ):
 # 
 # ------------------------------------------
 
-def FIESTA(V_grid, CCF, eCCF, template=None, SNR=2, k_max=None):
+def FIESTA(V_grid, CCF, eCCF, template=[], SNR=2, k_max=None):
 	'''
 		V_grid: 	1D velocity grid array (N_v,)
 		CCF: 		CCF array containing all the files (N_v, N_file)
@@ -74,7 +75,7 @@ def FIESTA(V_grid, CCF, eCCF, template=None, SNR=2, k_max=None):
 		(2) If template is not given but eCCF is given, calculate the weighted average as the template. - usually the case
 		(3) If no template is given and eCCF = 0, use the first file as the template.
 	'''
-	if template!=None:
+	if template!=[]:
 		tpl_CCF = template
 	elif ~np.all(eCCF == 0):
 		tpl_CCF = np.average(CCF, weights=1/eCCF**2, axis=1)
@@ -222,7 +223,6 @@ def FIESTA(V_grid, CCF, eCCF, template=None, SNR=2, k_max=None):
 				.format(ξ_FIESTA, len(ξ[ξ<=ξ_FIESTA])-1))
 		
 
-		import pandas as pd 
 		df = pd.DataFrame({	'ξ'					: ξ, 
 							'individual_SNR'	: individual_SNR,
 							'ts_SNR_A'			: ts_SNR_A, 
