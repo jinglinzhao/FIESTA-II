@@ -1,3 +1,3 @@
 # FIESTA-II
 
-Paper in preparation https://www.overleaf.com/read/zvrxcpvwvvkc
+Link to paper: https://arxiv.org/abs/2201.03780
