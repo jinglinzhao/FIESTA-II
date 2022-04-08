@@ -108,9 +108,9 @@ def FIESTA(V_grid, CCF, eCCF, template=[], SNR=2, k_max=None):
 	# Amplitude and phase uncertainties 
 	# ------------------------------------------
 	
-	A_spectrum 		= np.zeros((ξ.size, N_file))
-	ϕ_spectrum 		= np.zeros((ξ.size, N_file))
-	v_spectrum 		= np.zeros((ξ.size-1, N_file))
+	A_k 			= np.zeros((ξ.size, N_file))
+	ϕ_k 			= np.zeros((ξ.size, N_file))
+	v_k 			= np.zeros((ξ.size-1, N_file))
 	σA 				= np.zeros(N_file)
 	σϕ 				= np.zeros((ξ.size, N_file))
 	RV_gauss 		= np.zeros(N_file)
@@ -119,12 +119,12 @@ def FIESTA(V_grid, CCF, eCCF, template=[], SNR=2, k_max=None):
 	for n in range(N_file):
 		
 		# DFT
-		A, ϕ, ξ 		= FT(CCF[:,n], spacing)
-		A_spectrum[:,n] = A
-		ϕ_spectrum[:,n]	= ϕ
+		A, ϕ, ξ 	= FT(CCF[:,n], spacing)
+		A_k[:,n] 	= A
+		ϕ_k[:,n]	= ϕ
 
-		Δϕ 				= wrap(ϕ - ϕ_tpl)
-		v_spectrum[:,n] = -Δϕ[1:] / (2 *np.pi*ξ[1:])
+		Δϕ 			= wrap(ϕ - ϕ_tpl)
+		v_k[:,n] 	= -Δϕ[1:] / (2 *np.pi*ξ[1:])
 
 		# RV measured as centroid of a Gaussian fit.			
 		popt, pcov 	= curve_fit(gaussian, V_grid, CCF[:,n], p0=[0.5, (max(V_grid)+min(V_grid))/2, 1, 0])
@@ -165,7 +165,7 @@ def FIESTA(V_grid, CCF, eCCF, template=[], SNR=2, k_max=None):
 		individual_SNR 	= np.zeros(ξ.size)
 		
 		for i in range(ξ.size):
-			individual_SNR[i] 	= np.median(A_spectrum[i,:] / σA)
+			individual_SNR[i] 	= np.median(A_k[i,:] / σA)
 
 		ξ_individual = max(ξ[individual_SNR>SNR])
 
@@ -179,10 +179,10 @@ def FIESTA(V_grid, CCF, eCCF, template=[], SNR=2, k_max=None):
 			The standard deviation of a time-series is at least twice 
 			as large as the median uncertainty of individual measurement.
 		'''
-		ts_SNR_A 	= np.std(A_spectrum, axis=1) / np.median(σA)
+		ts_SNR_A 	= np.std(A_k, axis=1) / np.median(σA)
 		ξ_A 		= ξ[ts_SNR_A > SNR]
 
-		ts_SNR_ϕ 	= np.std(ϕ_spectrum, axis=1) / np.median(σϕ,axis=1)
+		ts_SNR_ϕ 	= np.std(ϕ_k, axis=1) / np.median(σϕ,axis=1)
 		ξ_ϕ			= ξ[ts_SNR_ϕ > SNR]
 		ξ_ts		= min(max(ξ_A), max(ξ_ϕ))
 
@@ -240,7 +240,7 @@ def FIESTA(V_grid, CCF, eCCF, template=[], SNR=2, k_max=None):
 							}))
 
 
-		σv_spectrum 	= (σϕ[1:,:].T / (2*np.pi*ξ[1:].T)).T 
+		σv_k 	= (σϕ[1:,:].T / (2*np.pi*ξ[1:].T)).T 
 
 	'''
 		If noise is present in the input spectra (as is normally the case),
@@ -249,6 +249,6 @@ def FIESTA(V_grid, CCF, eCCF, template=[], SNR=2, k_max=None):
 		return the FIESTA outputs without error estimates.
 	'''
 	if ~np.all(eCCF == 0):
-		return df, v_spectrum[:k_max,:], σv_spectrum[:k_max,:], A_spectrum[1:k_max+1,:], np.vstack([σA]*k_max), RV_gauss
+		return df, v_k[:k_max,:], σv_k[:k_max,:], A_k[1:k_max+1,:], np.vstack([σA]*k_max), RV_gauss
 	else: 
-		return v_spectrum[:k_max,:], A_spectrum[1:k_max+1,:], RV_gauss
+		return v_k[:k_max,:], A_k[1:k_max+1,:], RV_gauss
