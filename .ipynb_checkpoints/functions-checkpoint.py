@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def periodogram6(x, y, vlines, plot_min_t=1, max_f=1, spp=100):
+def periodogram6(ax, x, y, vlines, plot_min_t=1, max_f=1, spp=100):
 
 	from scipy.signal import find_peaks
 	from astropy.timeseries import LombScargle
@@ -16,7 +16,7 @@ def periodogram6(x, y, vlines, plot_min_t=1, max_f=1, spp=100):
 	plot_x = 1/frequency
 	idxx = (plot_x>plot_min_t) & (plot_x<100)
 	height = max(power[idxx])*0.9
-	ax.plot(plot_x[idxx], power[idxx], 'k-', label=r'$\xi$'+str(i+1), alpha=0.5)
+	ax.plot(plot_x[idxx], power[idxx], 'k-', label=r'$\xi$'+str(i+1), alpha=0.7)
 	peaks, _ = find_peaks(power[idxx], height=height)
 	ax.plot(plot_x[idxx][peaks], power[idxx][peaks], "ro")
 
@@ -24,7 +24,7 @@ def periodogram6(x, y, vlines, plot_min_t=1, max_f=1, spp=100):
 		ax.text(plot_x[idxx][peaks][n], power[idxx][peaks][n], '%.1f' % plot_x[idxx][peaks][n], fontsize=10)
 
 	for xc in vlines:
-		ax.axvline(x=xc, color='r', linestyle='-', lw=2, alpha=0.2)
+		ax.axvline(x=xc, color='r', linestyle='-', lw=2, alpha=0.3)
 
 	ax.set_xlim([plot_min_t,100])
 	ax.set_ylim([0,1.7*height])
