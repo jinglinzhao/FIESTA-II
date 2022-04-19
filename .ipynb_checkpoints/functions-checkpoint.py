@@ -1,7 +1,34 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+def periodogram6(x, y, vlines, plot_min_t=1, max_f=1, spp=100):
 
+	from scipy.signal import find_peaks
+	from astropy.timeseries import LombScargle
+
+	time_span = (max(x) - min(x))
+	min_f   = 1/time_span
+
+	frequency, power = LombScargle(x, y).autopower(minimum_frequency=min_f,
+												   maximum_frequency=max_f,
+												   samples_per_peak=spp)
+
+	plot_x = 1/frequency
+	idxx = (plot_x>plot_min_t) & (plot_x<100)
+	height = max(power[idxx])*0.9
+	ax.plot(plot_x[idxx], power[idxx], 'k-', label=r'$\xi$'+str(i+1), alpha=0.5)
+	peaks, _ = find_peaks(power[idxx], height=height)
+	ax.plot(plot_x[idxx][peaks], power[idxx][peaks], "ro")
+
+	for n in range(len(plot_x[idxx][peaks])):
+		ax.text(plot_x[idxx][peaks][n], power[idxx][peaks][n], '%.1f' % plot_x[idxx][peaks][n], fontsize=10)
+
+	for xc in vlines:
+		ax.axvline(x=xc, color='r', linestyle='-', lw=2, alpha=0.2)
+
+	ax.set_xlim([plot_min_t,100])
+	ax.set_ylim([0,1.7*height])
+	ax.set_xscale('log')
 
 def plot_all(k_mode, t, rv, erv, ind, eind, ts_xlabel, rv_xlabel, pe_xlabel, ind_yalbel, file_name, height_ratio=0.7, vlines=[], HARPS=True):
 
