@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+
 def periodogram6(ax, x, y, vlines, plot_min_t=1, max_f=1, spp=100):
 
 	from scipy.signal import find_peaks
@@ -29,6 +32,9 @@ def periodogram6(ax, x, y, vlines, plot_min_t=1, max_f=1, spp=100):
 	ax.set_xlim([plot_min_t,100])
 	ax.set_ylim([0,1.7*height])
 	ax.set_xscale('log')
+
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------    
 
 def plot_all(k_mode, t, rv, erv, ind, eind, ts_xlabel, rv_xlabel, pe_xlabel, ind_yalbel, file_name, height_ratio=0.7, vlines=[], HARPS=True):
 
@@ -148,7 +154,9 @@ def plot_all(k_mode, t, rv, erv, ind, eind, ts_xlabel, rv_xlabel, pe_xlabel, ind
 	plt.show()    
 	plt.close('all')
     
-    
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+
 def weighted_pca(X, X_err, n_pca=None, nor=False):
 	'''
 	X.shape 	= (n_samples, n_features)
