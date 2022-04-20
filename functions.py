@@ -586,3 +586,26 @@ def imshow_matrix(coeff_array, score, res_wrms, alpha, k_max, file_name):
 	plt.savefig(file_name + '_{:.2f}_{:d}_{:d}'.format(alpha, day, k_max) +'.pdf')
 	plt.show()
 	plt.close()
+    
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+
+def scatter_hist(x, y, xerr, yerr, ax, ax_histx, ax_histy):
+
+    ax_histx.tick_params(axis="x", labelbottom=False)
+    ax_histy.tick_params(axis="y", labelleft=False)
+
+    # the scatter plot:
+    ax.errorbar(x, y, xerr, yerr, c='black', marker='o', ls='none', alpha=0.2)
+    ax.set_xlabel('Model 3 residual [m/s]')
+    ax.set_ylabel('Model 6 residual [m/s]')
+
+    # now determine nice limits by hand:
+    binwidth = 0.25
+    xymax = max(np.max(np.abs(x)), np.max(np.abs(y)))
+    lim = (int(xymax/binwidth) + 1) * binwidth
+
+    bins = np.arange(-lim, lim + binwidth, binwidth)
+    ax_histx.hist(x, bins=bins, color='black', alpha=0.5)
+    ax_histy.hist(y, bins=bins, orientation='horizontal', color='black', alpha=0.5)
+    
