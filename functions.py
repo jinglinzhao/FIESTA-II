@@ -147,3 +147,85 @@ def plot_all(k_mode, t, rv, erv, ind, eind, ts_xlabel, rv_xlabel, pe_xlabel, ind
 	plt.savefig(file_name)
 	plt.show()    
 	plt.close('all')
+    
+    
+def weighted_pca(X, X_err, n_pca=None, nor=False):
+	'''
+	X.shape 	= (n_samples, n_features)
+	X_err.shape = (n_samples, n_features)
+	nor: normalization = True / False
+	'''
+	from wpca import WPCA
+
+	weights = 1/X_err
+	kwds 	= {'weights': weights}
+
+	# subtract the weighted mean for each measurement type (dimension) of X
+	X_new 	= np.zeros(X.shape)
+	mean 	= np.zeros(X.shape[1])
+	std 	= np.zeros(X.shape[1])
+
+	for i in range(X.shape[1]):
+		mean[i] = np.average(X[:,i], weights=weights[:,i])
+		std[i] 	= np.average((X[:,i]-mean[i])**2, weights=weights[:,i])**0.5
+
+	for i in range(X.shape[1]):
+		if nor == True:
+			X_new[:,i] 		= (X[:,i] - mean[i]) / std[i]
+			weights[:,i]	= weights[:,i] * std[i] 	# may need to include the Fourier power later
+		else:
+			X_new[:,i] = X[:,i] - mean[i]
+
+	if n_pca==None:
+		n_pca = X.shape[1]
+
+	# Compute the PCA vectors & variance
+	pca 		= WPCA(n_components=n_pca).fit(X_new, **kwds)
+	pca_score 	= pca.transform(X_new, **kwds)
+	P 			= pca.components_
+
+	# The following computes the errorbars
+	# The transpose is only intended to be consistent with the matrix format from Ludovic's paper
+	X_wpca 	= X_new.T
+	C 		= np.zeros(X_wpca.shape)
+	err_C 	= np.zeros(X_wpca.shape)
+
+	W 		= weights.T
+	P 		= P.T
+
+	for i in range(X_wpca.shape[1]):
+		w = np.diag(W[:, i]) ** 2
+		C[:, i] = np.linalg.inv(P.T @ w @ P) @ (P.T @ w @ X_wpca[:, i])
+
+		# the error is described by a covariance matrix of C
+		Cov_C = np.linalg.inv(P.T @ w @ P)
+		diag_C = np.diag(Cov_C)
+		err_C[:, i] = diag_C ** 0.5
+
+	P = pca.components_
+	err_pca_score = err_C.T
+
+	#---------#
+	# results #
+	#---------#
+	cumulative_variance_explained = np.cumsum(
+		pca.explained_variance_ratio_) * 100  # look again the difference calculated from the other way
+	print('Cumulative variance explained vs PCA components')
+	for i in range(len(cumulative_variance_explained)):
+		print(i+1, '\t', '{:.3f}'.format(cumulative_variance_explained[i]))
+
+	for i in range(len(cumulative_variance_explained)):
+		if cumulative_variance_explained[i] < 89.5:
+			n_pca = i
+	n_pca += 2
+	if cumulative_variance_explained[0] > 89.5:
+		n_pca = 1
+
+	print('{:d} pca scores account for {:.2f}% variance explained'.format(n_pca,
+			cumulative_variance_explained[n_pca - 1]))
+
+	print('Standard deviations of each component and the midean uncertainty are\n',
+		  np.around(np.std(C[0:n_pca, :], axis=1), decimals=1), '\n',
+		  np.around(np.median(err_C[0:n_pca, :], axis=1), decimals=1))
+
+	return P, pca_score, err_pca_score, n_pca
