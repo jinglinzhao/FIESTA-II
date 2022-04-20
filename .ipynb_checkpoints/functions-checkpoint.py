@@ -153,6 +153,93 @@ def plot_all(k_mode, t, rv, erv, ind, eind, ts_xlabel, rv_xlabel, pe_xlabel, ind
 	plt.savefig(file_name)
 	plt.show()    
 	plt.close('all')
+
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+
+def plot_all_but_corr(k_mode, t, ind, eind, height_ratio, ts_xlabel, pe_xlabel, ind_yalbel, file_name):
+
+	'''
+	e.g. 
+		k_mode 		= 11
+		t 			= bjd_daily
+		ind 		= shift_function
+		eind 	 	= err_shift_spectrum
+		ts_xlabel 	= 'BJD - 2400000 [d]'
+		pe_xlabel 	= 'Period [days]'
+		ind_yalbel	= 'A'
+		file_name 	= 'time-series_and_shift_correlation.png'
+
+	'''
+	def new_periodogram(x, y, dy, height_ratio=height_ratio, plot_min_t=2, max_f=1, spp=100):
+	
+		from scipy.signal import find_peaks
+		from astropy.timeseries import LombScargle
+
+		time_span = (max(x) - min(x))
+		min_f   = 1/time_span
+
+		frequency, power = LombScargle(x, y, dy).autopower(minimum_frequency=min_f,
+													   maximum_frequency=max_f,
+													   samples_per_peak=spp)
+
+		plot_x = 1/frequency
+		idxx = (plot_x>plot_min_t) & (plot_x<time_span/2)
+		height = max(power[idxx])*height_ratio
+		ax.plot(plot_x[idxx], power[idxx], 'k-', alpha=0.5)
+		peaks, _ = find_peaks(power[idxx], height=height)
+		ax.plot(plot_x[idxx][peaks], power[idxx][peaks], "ro")
+
+		for n in range(len(plot_x[idxx][peaks])):
+			ax.text(plot_x[idxx][peaks][n], power[idxx][peaks][n], '%.1f' % plot_x[idxx][peaks][n], fontsize=10)
+
+		ax.set_xlim([plot_min_t,time_span/2])
+		ax.set_ylim([0, 1.25*max(power[idxx])])
+
+		ax.set_xscale('log')
+
+	from sklearn.linear_model import LinearRegression
+
+	# set up the plotting configureations
+	alpha1, alpha2 = [0.5,0.2]
+	widths 	= [7,7]
+	heights = [1]*k_mode
+	gs_kw 	= dict(width_ratios=widths, height_ratios=heights)
+	plt.rcParams.update({'font.size': 12})
+	fig6, f6_axes = plt.subplots(figsize=(16, k_mode), ncols=2, nrows=k_mode, constrained_layout=True,
+	                             gridspec_kw=gs_kw)
+
+	# plots 
+	for r, row in enumerate(f6_axes):
+		for c, ax in enumerate(row):	
+
+			# time-series 
+			if c==0:
+				ax.errorbar(t, ind[r,:], eind[r,:],  marker='.', ms=5, color='black', ls='none', alpha=alpha1)
+				if len(ind_yalbel)==1:
+					ax.set_ylabel(ind_yalbel[0] + '$_{' + str(r+1) + '}$')
+				else:
+					ax.set_ylabel(ind_yalbel[r])
+				if r==0:
+					ax.set_title('Time-series')
+				if r!=(k_mode-1):
+					ax.set_xticks([])
+				if r==(k_mode-1):
+					ax.set_xlabel(ts_xlabel)
+
+			if c==1:
+				new_periodogram(t, ind[r,:], eind[r,:])
+				if r==0:
+					ax.set_title('Periodogram')
+				if r!=(k_mode-1):
+					ax.set_xticks([])
+				if r==(k_mode-1):
+					ax.set_xlabel(pe_xlabel)
+
+	fig6.align_ylabels(f6_axes[:, 0])
+	plt.savefig(file_name)
+	plt.show() 
+	plt.close('all')
     
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
@@ -237,3 +324,26 @@ def weighted_pca(X, X_err, n_pca=None, nor=False):
 		  np.around(np.median(err_C[0:n_pca, :], axis=1), decimals=1))
 
 	return P, pca_score, err_pca_score, n_pca
+
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+
+def long_short_divide(x, y, yerr, r):
+	'''
+	x 		= bjd_daily
+	y 		= shift_function[i,:]
+	yerr 	= err_shift_spectrum[i,:]
+	'''
+
+	import george
+	from george import kernels
+
+	kernel 	= np.var(y) * kernels.Matern52Kernel(r**2)
+	gp 		= george.GP(kernel)
+	gp.compute(x, yerr)
+
+	y_pred, _ 	= gp.predict(y, x, return_var=True)
+	long_term 	= y_pred
+	short_term 	= y - y_pred
+
+	return gp, short_term, long_term
