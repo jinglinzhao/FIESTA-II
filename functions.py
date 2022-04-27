@@ -19,7 +19,7 @@ def periodogram6(ax, x, y, vlines, plot_min_t=1, max_f=1, spp=100):
 	plot_x = 1/frequency
 	idxx = (plot_x>plot_min_t) & (plot_x<100)
 	height = max(power[idxx])*0.9
-	ax.plot(plot_x[idxx], power[idxx], 'k-', label=r'$\xi$'+str(i+1), alpha=0.7)
+	ax.plot(plot_x[idxx], power[idxx], 'k-', alpha=0.7)
 	peaks, _ = find_peaks(power[idxx], height=height)
 	ax.plot(plot_x[idxx][peaks], power[idxx][peaks], "ro")
 
@@ -501,7 +501,7 @@ def mlr(feature_matrix, target_vector, etarget_vector, alpha, lag='True', day=5,
 		
 		return y_hat, w_std_all, res_wrms, score, df
 
-	else: # maybe problematic!!!
+	else: 
 
 		coeff_matrix = np.zeros((day*2+1, k_feature2))
 		for i in range(k_feature):
@@ -609,3 +609,89 @@ def scatter_hist(x, y, xerr, yerr, ax, ax_histx, ax_histy):
     ax_histx.hist(x, bins=bins, color='black', alpha=0.5)
     ax_histy.hist(y, bins=bins, orientation='horizontal', color='black', alpha=0.5)
     
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+
+def plot_soap_config(FEATURE):
+    
+    N_sample  = 8
+    lat       = np.linspace(10, 80, num=N_sample)
+    RV_gauss_all = np.zeros((N_sample, 100))
+    ΔA_k_all = np.zeros((N_sample, 5, 100))
+    Δv_k_all = np.zeros((N_sample, 5, 100))
+
+    for i in range(N_sample):
+        print('\nlatitude = ' + str(lat[i]))
+        folder_name = 'CCF_PROT=25.05_i=90.00_lon=(180.0,0.0,0.0,0.0)_lat=(' + '%.1f' % lat[i] +  ',0.0,0.0,0.0)_size=(0.1000,0.0000,0.0000,0.0000)'
+        DIR     = 'Data/' + FEATURE + '_lat/' + folder_name
+        FILE    = sorted(glob.glob(DIR + '/fits/*fits'))
+        N       = len(FILE)
+
+        for n in range(N):
+            hdulist     = fits.open(FILE[n])
+            CCF[:, n]   = hdulist[0].data[v_idx]
+
+        v_k, A_k, RV_gauss = FIESTA(V_grid_SOAP, CCF, eCCF=CCF*0, template=CCF[:,0], k_max=5)
+        v_k *= 1000
+        RV_gauss = (RV_gauss - RV_gauss[0]) * 1000
+        RV_gauss_all[i,:] = RV_gauss
+
+        ΔA_k_all[i,:,:] = np.array([A_k[:,kk] - A_k[:,0] for kk in range(100)]).T
+
+        for k in range(v_k.shape[0]):
+            v_k[k,:] -= RV_gauss
+        Δv_k_all[i,:,:] = v_k  
+
+    # 
+    colors = cm.seismic(np.linspace(0, 1, RV_gauss_all.shape[0]))
+
+    plt.rcParams.update({'font.size': 12})
+    fig, axes = plt.subplots(5,2,figsize=(8, 6)) 
+    plt.subplots_adjust(left = 0.15, hspace=0.1, wspace=0.35, top = 0.95, right = 0.95) 
+
+    phase = np.arange(100)/100
+    idx = (phase<=0.8) & (phase>=0.2)
+
+    for i in range(5):
+
+        for j in range(N_sample):
+            axes[i,0].plot(phase[idx], ΔA_k_all[j,i,idx], alpha=0.8, color=colors[7-j], label=r'$%d\degree$' %lat[j])
+            axes[i,1].plot(phase[idx], Δv_k_all[j,i,idx], alpha=0.8, color=colors[7-j])
+        axes[i,0].set_ylabel(r'$k$=%d' %(i+1))
+        axes[i,1].set_ylabel('[m/s]')
+        axes[0,0].set_title(FEATURE + r' $\Delta A_k$')
+        axes[0,1].set_title(FEATURE + r' $\Delta RV_k$')
+
+        if i == 1:            
+            axes[i,0].legend(fontsize=6, loc=3)
+
+        for l in range(2):
+            if i!=4:
+                axes[i,l].set_xticks([])
+            else:
+                axes[i,l].set_xlabel('Rotation phase') 
+
+    fig.align_ylabels(axes[:,0])
+    fig.align_ylabels(axes[:,1])
+    plt.savefig('Figure/FIESTA-' + FEATURE + '_latitude.pdf')
+    plt.show()
+
+    RV_gauss = RV_gauss.reshape(-1, 1)
+    plt.rcParams.update({'font.size': 16})
+    fig, axes = plt.subplots(figsize=(20, 4))
+    fig.tight_layout()
+    plt.subplots_adjust(left=0.06, bottom=0.16, right=0.98, top=0.9, wspace=0.4, hspace=0.4)
+
+    for j in range(5):  
+        ax = plt.subplot(1, 5, j+1)
+        for i in range(RV_gauss_all.shape[0]):
+            ax.plot(RV_gauss_all[i,:], Δv_k_all[i,j,:], '.-', alpha=0.8, color=colors[7-i], label=r'$%d\degree$' %lat[i])
+            ax.set_xlabel(r'$RV_{Gaussian}$ [m/s]')
+            ax.set_ylabel(r'$\Delta RV_{}$ [m/s]'.format(j+1))
+            if FEATURE == 'spot':
+                if j==0:
+                    ax.legend(prop={'size': 10})
+            if j==2:
+                ax.set_title('Solar '+ FEATURE)
+    plt.savefig('Figure/FIESTA-' + FEATURE + '_latitude_correlation.pdf')
+    plt.show()    
