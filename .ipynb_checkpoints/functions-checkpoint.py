@@ -583,7 +583,7 @@ def imshow_matrix(coeff_array, score, res_wrms, alpha, k_max, file_name):
 	cax = divider.append_axes("right", size="5%", pad=0.05)
 
 	plt.colorbar(im2, cax=cax, label='Variance percentage') 
-	plt.savefig(file_name + '_{:.2f}_{:d}_{:d}'.format(alpha, day, k_max) +'.pdf')
+	plt.savefig(file_name + '_{:.2f}_{:d}_{:d}'.format(alpha, day, k_max) +'.png')
 	plt.show()
 	plt.close()
     
