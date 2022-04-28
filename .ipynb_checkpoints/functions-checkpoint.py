@@ -572,11 +572,11 @@ def imshow_matrix(coeff_array, score, res_wrms, alpha, k_max, file_name):
 	ax.set_xticklabels(x)
 	if file_name == 'fwhm_bis_coef':
 		ax.set_yticklabels(['FWHM', 'BIS'])
-	if file_name == 'fwhm_bis_multi_coef':
+	if file_name == 'Figure/fwhm_bis_multi_coef':
 		ax.set_yticklabels(['S-FWHM', 'S-BIS', 'L-FWHM', 'L-BIS'])
 	if file_name == 'pca_coef':	
 		ax.set_yticklabels([r'PC$_1$', r'PC$_2$', r'PC$_3$'])	
-	if file_name == 'fiesta_multi_coef':
+	if file_name == 'Figure/fiesta_multi_coef':
 		ax.set_yticklabels([r'S-PC$_1$', r'S-PC$_2$', r'S-PC$_3$', r'L-PC$_1$', r'L-PC$_2$', r'L-PC$_3$'])
 
 	divider = make_axes_locatable(ax)
