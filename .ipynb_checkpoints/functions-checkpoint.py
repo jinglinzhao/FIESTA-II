@@ -437,7 +437,7 @@ def lasso_lambda(X, Y, Weight, alphas, n_folds=5, N=100, title='', file_name=Non
 		plt.xlim([alphas[0], alphas[-1]])
 		plt.legend()
 		
-		plt.savefig(file_name + '.pdf')
+		plt.savefig(file_name + '.png')
 		plt.show()
 		plt.close()
 	
