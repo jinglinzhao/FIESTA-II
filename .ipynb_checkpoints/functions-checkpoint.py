@@ -50,7 +50,7 @@ def plot_all(k_mode, t, rv, erv, ind, eind, ts_xlabel, rv_xlabel, pe_xlabel, ind
 		rv_xlabel 	= '$RV_{HARPS}$'
 		pe_xlabel 	= 'Period [days]'
 		ind_yalbel	= 'A'
-		file_name 	= 'time-series_and_shift_correlation.png'
+		file_name 	= 'time-series_and_shift_correlation.pdf'
 
 	'''
 
@@ -437,7 +437,7 @@ def lasso_lambda(X, Y, Weight, alphas, n_folds=5, N=100, title='', file_name=Non
 		plt.xlim([alphas[0], alphas[-1]])
 		plt.legend()
 		
-		plt.savefig(file_name + '.png')
+		plt.savefig(file_name + '.pdf')
 		plt.show()
 		plt.close()
 	
@@ -583,7 +583,7 @@ def imshow_matrix(coeff_array, score, res_wrms, alpha, k_max, file_name):
 	cax = divider.append_axes("right", size="5%", pad=0.05)
 
 	plt.colorbar(im2, cax=cax, label='Variance percentage') 
-	plt.savefig(file_name + '_{:.2f}_{:d}_{:d}'.format(alpha, day, k_max) +'.png')
+	plt.savefig(file_name + '_{:.2f}_{:d}_{:d}'.format(alpha, day, k_max) +'.pdf')
 	plt.show()
 	plt.close()
     
