@@ -1,3 +1,3 @@
 # FIESTA-II
 
-Link to paper: https://arxiv.org/abs/2201.03780
+Link to paper: 10.3847/1538-4357/ac77ec
