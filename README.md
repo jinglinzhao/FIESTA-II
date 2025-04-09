@@ -17,13 +17,6 @@ Our method is detailed in the paper: [FIESTA II. Disentangling Stellar and Instr
 [![DOI](https://img.shields.io/badge/DOI-10.3847%2F1538--4357%2Fac77ec-blue)](https://doi.org/10.3847/1538-4357/ac77ec)
 
 
-## Installation
-
-```bash
-git clone https://github.com/jinglinzhao/FIESTA-II.git
-cd FIESTA-II
-```
-
 ## Citation
 
 If you make use of this code in your research, please cite:
