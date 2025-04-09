@@ -21,6 +21,7 @@ Our method is detailed in the paper: [FIESTA II. Disentangling Stellar and Instr
 
 If you make use of this code in your research, please cite:
 
+```bibtex
 @ARTICLE{2022ApJ...935...75Z,
     author = {{Zhao}, J. and {Ford}, Eric B. and {Tinney}, C.~G.},
     title = "{FIESTA II. Disentangling Stellar and Instrumental Variability from Exoplanetary Doppler Shifts in the Fourier Domain}",
