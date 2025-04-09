@@ -1,9 +1,4 @@
-# FIESTA-II: Fourier Investigation of Exoplanetary Signals and Telluric/Activity
-
-![GitHub stars](https://img.shields.io/github/stars/jinglinzhao/FIESTA-II?style=social)
-![GitHub forks](https://img.shields.io/github/forks/jinglinzhao/FIESTA-II?style=social)
-![GitHub issues](https://img.shields.io/github/issues/jinglinzhao/FIESTA-II)
-![License](https://img.shields.io/github/license/jinglinzhao/FIESTA-II)
+# FIESTA-II
 
 ## Overview
 
