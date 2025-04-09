@@ -16,19 +16,15 @@ Our method is detailed in the paper: [FIESTA II. Disentangling Stellar and Instr
 [![arXiv](https://img.shields.io/badge/arXiv-2201.03780-b31b1b.svg)](https://arxiv.org/abs/2201.03780)
 [![DOI](https://img.shields.io/badge/DOI-10.3847%2F1538--4357%2Fac77ec-blue)](https://doi.org/10.3847/1538-4357/ac77ec)
 
-## Features
-
-- Fourier domain analysis of radial velocity signals
-- Separation of planetary signals from stellar activity
-- Reduction of instrumental noise effects
-- Improved detection sensitivity for Earth-like exoplanets
 
 ## Installation
 
 ```bash
 git clone https://github.com/jinglinzhao/FIESTA-II.git
 cd FIESTA-II
-# Add installation instructions here
+```
+
+## Citation
 
 If you make use of this code in your research, please cite:
 
